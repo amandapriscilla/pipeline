@@ -1,0 +1,48 @@
+-- CONTROLADOR Projeto VHDL 
+library ieee;
+use ieee.std_logic_1164.all;
+
+entity saida is
+port ( 
+--Entradas
+		on_off: in std_logic;
+		clk, rst: in std_logic;
+
+--Saida
+		led: out std_logic
+);
+end saida;
+
+architecture behavior of saida is
+type statetype is
+	(S_Wait, S_Change);
+signal currentstate, nextstate: statetype;
+signal status: std_logic := '1';
+begin
+statereg: process(clk, rst) -- reg de estado
+	begin
+	  if(rst='1') then -- initial state
+		 currentstate <= S_Wait;
+	  elsif(clk='1' and clk'event) then
+	     currentstate <= nextstate;
+	  end if;
+	end process;
+comblogic: process(currentstate, on_off, status, clk) -- logica combinacional
+begin
+  case currentstate is
+		when S_Wait => 
+			if on_off = '1' then
+				nextstate <= S_Change;
+			else
+				nextstate <= S_Wait;
+			end if;
+			led <= status;
+		when S_Change =>
+			if(clk='1' and clk'event) then
+				status <= not(status);
+			end if;	
+				
+				nextstate <= S_Wait;
+	end case;
+end process;
+end behavior;

@@ -1,0 +1,14 @@
+
+State Machine - |sistema|controlador:c2|nextstate
+Name nextstate.S_WRITE nextstate.S_ULA nextstate.S_Read nextstate.S_Wait 
+nextstate.S_Wait 0 0 0 0 
+nextstate.S_Read 0 0 1 1 
+nextstate.S_ULA 0 1 0 1 
+nextstate.S_WRITE 1 0 0 1 
+
+State Machine - |sistema|entrada:c1|currentstate
+Name currentstate.S3 currentstate.S2 currentstate.S1 currentstate.S0 
+currentstate.S0 0 0 0 0 
+currentstate.S1 0 0 1 1 
+currentstate.S2 0 1 0 1 
+currentstate.S3 1 0 0 1 

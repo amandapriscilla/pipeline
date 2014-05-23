@@ -1,0 +1,7 @@
+<?xml version="1.0" ?>
+<LOG_ROOT>
+	<PROJECT NAME="sistema">
+		<CBX_INST_ENTRY INSTANCE_NAME="|sistema|acessoM:c3|memoria:c1|altsyncram:altsyncram_component" CBX_FILE_NAME="altsyncram_gei1.tdf"/>
+		<CBX_INST_ENTRY INSTANCE_NAME="|sistema|ula:c5|lpm_mult:Mult0" CBX_FILE_NAME="mult_7dt.tdf"/>
+	</PROJECT>
+</LOG_ROOT>
