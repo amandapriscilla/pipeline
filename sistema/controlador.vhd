@@ -11,17 +11,15 @@ port (
 		op, func: in std_logic_vector(5 downto 0);
 		rd, rs, rt: std_logic_vector(4 downto 0);
 		pronto: std_logic;		
-	-- acesso a memoria/ula/registrador -- saida_reg1 = rs, saida_reg2 = rt
-		saida_mem, saida_ula, saida_reg1, saida_reg2 : in std_logic_vector (31 downto 0);
+	-- aula/registrador -- saida_reg1 = rs, saida_reg2 = rt
+		saida_ula, saida_reg1, saida_reg2 : in std_logic_vector (31 downto 0);
 	
 		clk, rst: in std_logic;
 --Saidas
-		end_mem, end_reg1, end_reg2, end_regW: out std_logic_vector (4 downto 0);
-		ent_mem,	ent_ula1, ent_ula2, ent_reg: out std_logic_vector (31 downto 0);
-		le_mem, le_reg	: out std_logic;
-	state: out std_logic_vector (1 downto 0);	
-		r_bcd: out std_logic_vector (31 downto 0);
-		led: out std_logic:='0'
+		end_reg1, end_reg2, end_regW: out std_logic_vector (4 downto 0);
+		ent_ula1, ent_ula2, ent_reg: out std_logic_vector (31 downto 0);
+		le_reg	: out std_logic;
+		state: out std_logic_vector (1 downto 0)	
 		
 );
 end controlador;
@@ -43,38 +41,30 @@ statereg: process(clk, rst, nextstate) -- reg de estado
 	     currentstate <= nextstate;
 	  end if;
 	end process;
-comblogic: process(clk, currentstate, op, func, rd, rs, rt, pronto, saida_mem, saida_ula, saida_reg1, saida_reg2, mem1, mem2, wrote1) -- logica combinacional
+comblogic: process(clk, currentstate, op, func, rd, rs, rt, pronto, saida_ula, saida_reg1, saida_reg2, mem1, mem2, wrote1) -- logica combinacional
 begin
 if(clk='1' and clk'event) then
   case currentstate is
 		when S_Wait =>  
-		led<='1';	le_mem <= '0'; le_reg<='0';
+			le_reg<='0';
 			if(pronto='0') then
 				nextstate <= S_Wait;
 			else
 				nextstate <= S_Read;
-				led<='0';	
 			end if;
 			state<="00";
 			
 			-- ZERANDO SAIDAS E SINAIS
-			mem1 <= '0';  mem2 <= '0';
 			zero <= (others => '0');
-			wrote1 <= '0';	
-			
+			wrote1 <= '0';				
 			
 		-- **************** READ ENDERECOS **********************
 		when S_Read => 
 			state<="01";
-			le_mem <= '0'; le_reg<='0';
+			le_reg<='0';
 			nextstate <= S_ULA;
 			
-			if(op = "100011") then -- op = 23(16) -> $d = Memory[rs]
-				end_mem <= rs;
-				end_reg1 <= "00000"; -- Zero
-				end_reg2 <= "00000"; -- Zero
-				mem1 <= '1';
-			elsif(op = "001111" and func = "010000") then -- op = 0F -> $d = HI
+			if(op = "001111" and func = "010000") then -- op = 0F -> $d = HI
 					end_reg1 <= "11111"; -- ENDERECO HI - ultimo registrador
 					end_reg2 <= "00000"; -- Zero
 				elsif (op = "001110" and func = "010010") then -- op -> 0E = $d = LO
@@ -82,80 +72,56 @@ if(clk='1' and clk'event) then
 					end_reg2 <= "00000"; -- Zero
 				else
 					end_reg1 <= rs; -- qqr chamada carrega do registrador
-					-- rd = rs +- Memory[rt]
-					if((op = "000001" and func = "000001") or (op = "000011" and func = "000010")) then -- op = 1 e func = 1 OU op = 3 e func = 2 => carrega rt da memoria
-						end_reg1 <= rs;
-						end_reg2 <= "00000"; -- Zero
-						end_mem <= rt;
-						mem2 <= '1';
-					else
-						end_reg1 <= rs;
-						end_reg2 <= rt;
-					end if;
-				end if;
+					end_reg2 <= rt;
+			end if;
 
 		-- **************** ULA **********************					
 		when S_ULA => 
 		
 		state<="10";
-		-- TRATANDO CASOS DE LEITURA DE MEMORIA
-				if mem1 = '1' then -- lendo rs da memoria
-					Ent_ula1 <= saida_mem;
-					Ent_ula2 <= zero;
-				elsif mem2 = '1' then -- lendo rt da memoria
-					Ent_ula1 <= saida_reg1;
-					Ent_ula2 <= saida_mem;
 		-- TRATANDO CASOS DE REGISTRADORES
-				elsif(op = "000100" and func = "011000") then -- op=4 e func = 18 LO e HI
-					-- ENVIA BITS MENOS SIGNIFICATIVOS
-					if(wrote1 = '0') then -- ENVIA LO (MENOS SIGNIFICATIVOS) PRA ULA
-						aux1 <= saida_reg1; 
-						aux2 <= saida_reg2;
-						
-						-- LO
-						Ent_ula1 <= zero(15 downto 0) & aux1(15 downto 0);	
-						Ent_ula2 <= zero(15 downto 0) & aux2(15 downto 0);	
-					else -- HI
-						Ent_ula1 <= zero(15 downto 0) & aux1(31 downto 16);	
-						Ent_ula2 <= zero(15 downto 0) & aux2(31 downto 16);				
-					end if;
-					
-				else
-						Ent_ula1 <= saida_reg1;
-						Ent_ula2 <= saida_reg2;
-				end if;
-
-				nextstate <= S_Write;
+		if(op = "000100" and func = "011000") then -- op=4 e func = 18 LO e HI
+			-- ENVIA BITS MENOS SIGNIFICATIVOS
+			if(wrote1 = '0') then -- ENVIA LO (MENOS SIGNIFICATIVOS) PRA ULA
+				aux1 <= saida_reg1; 
+				aux2 <= saida_reg2;
 				
+				-- LO
+				Ent_ula1 <= zero(15 downto 0) & aux1(15 downto 0);	
+				Ent_ula2 <= zero(15 downto 0) & aux2(15 downto 0);	
+			else -- HI
+				Ent_ula1 <= zero(15 downto 0) & aux1(31 downto 16);	
+				Ent_ula2 <= zero(15 downto 0) & aux2(31 downto 16);				
+			end if;
+			
+		else
+				Ent_ula1 <= saida_reg1;
+				Ent_ula2 <= saida_reg2;
+		end if;
+
+		nextstate <= S_Write;
+		
 				
 		when S_WRITE =>
 		state<="11";
-		r_bcd<=saida_ula;
-				if(op = "101011") then -- memory[rd] = rs
-					le_mem <= '1';
-					end_mem<= rd; 
-					ent_mem <= saida_ula;
-					nextstate <= S_Wait;
-				else
-					le_reg <= '1';
-					if(op = "000100" and func = "011000") then -- GRAVA EM LO e HI - op=4 e func = 18
-						if(wrote1 = '0') then -- grava LO
-							end_regW <= "11110"; -- LO
-							ent_reg <= saida_ula;
-							wrote1 <= '1';
-							nextstate <= S_ULA;
-						else  -- grava HI
-							end_regW <= "11111"; -- HI
-							ent_reg <= saida_ula;
-							nextstate <= S_Wait;
-						end if;
-					else -- outros casos
-						le_reg <= '1';
-						end_regW<= rd; 
-						ent_reg <= saida_ula;
-						nextstate <= S_Wait;
-					end if;
-				end if;
+		le_reg <= '1';
+		if(op = "000100" and func = "011000") then -- GRAVA EM LO e HI - op=4 e func = 18
+			if(wrote1 = '0') then -- grava LO
+				end_regW <= "11110"; -- LO
+				ent_reg <= saida_ula;
+				wrote1 <= '1';
+				nextstate <= S_ULA;
+			else  -- grava HI
+				end_regW <= "11111"; -- HI
+				ent_reg <= saida_ula;
+				nextstate <= S_Wait;
+			end if;
+		else -- outros casos
+			le_reg <= '1';
+			end_regW<= rd; 
+			ent_reg <= saida_ula;
+			nextstate <= S_Wait;
+		end if;
 				
 					
 				

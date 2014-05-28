@@ -29,22 +29,20 @@ architecture arq of sistema is
 	
 	component controlador is
 	port ( 
---Entradas
+---Entradas
 	-- modulo de entrada
 		op, func: in std_logic_vector(5 downto 0);
 		rd, rs, rt: std_logic_vector(4 downto 0);
 		pronto: std_logic;		
-	-- acesso a memoria/ula/registrador -- saida_reg1 = rs, saida_reg2 = rt
-		saida_mem, saida_ula, saida_reg1, saida_reg2 : in std_logic_vector (31 downto 0);
+	-- aula/registrador -- saida_reg1 = rs, saida_reg2 = rt
+		saida_ula, saida_reg1, saida_reg2 : in std_logic_vector (31 downto 0);
 	
 		clk, rst: in std_logic;
 --Saidas
-		end_mem, end_reg1, end_reg2, end_regW: out std_logic_vector (4 downto 0);
-		ent_mem,	ent_ula1, ent_ula2, ent_reg: out std_logic_vector (31 downto 0);
-		le_mem, le_reg	: out std_logic;
-	state: out std_logic_vector (1 downto 0);	
-		r_bcd: out std_logic_vector (31 downto 0);
-		led: out std_logic
+		end_reg1, end_reg2, end_regW: out std_logic_vector (4 downto 0);
+		ent_ula1, ent_ula2, ent_reg: out std_logic_vector (31 downto 0);
+		le_reg	: out std_logic;
+		state: out std_logic_vector (1 downto 0)	
 		
 );
 	end component;
@@ -135,8 +133,8 @@ architecture arq of sistema is
 	c7: saida port map (Entrada_LED,clk,rst,saida_led);
 	
 	
-	c2: controlador port map (op0,funct0,rd,rs,rt,pronto,Dados_saida0,SaidaULA,Data_Out1, Data_Out2,clk,rst, 
-										Endereco0,Adr1, Adr2, AdrW,Dados_entr0,Ent0, Ent1,Dat_IN,LerEscrever0,LoE,state,Entrada_BCD, Entrada_LED);
+	c2: controlador port map (op0,funct0,rd,rs,rt,pronto,SaidaULA, Data_Out1, Data_Out2, clk, rst, 
+										Adr1, Adr2, AdrW,Ent0, Ent1,Dat_IN,LoE,state);
 	
 	
 	
