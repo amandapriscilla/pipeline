@@ -1,0 +1,18 @@
+-- SISTEMA Projeto VHDL 
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.std_logic_arith.all;
+use ieee.std_logic_unsigned.all;
+
+entity Pipeline is
+port ( 	clk,rst: std_logic;
+			botao1, botao2: in std_logic;
+			dados: in std_logic_vector(15 downto 0);
+			saida_led: out std_logic;
+			display0,display1,display2,display3,display4,display5,display6,display7: out std_logic_vector(6 downto 0);
+			
+			state: out std_logic_vector (1 downto 0)
+		);
+end Pipeline;
+
+architecture arq of sistema is

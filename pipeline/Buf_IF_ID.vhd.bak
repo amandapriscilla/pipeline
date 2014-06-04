@@ -1,0 +1,73 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+entity Buf_IF_ID is
+	port (
+		clock  			: in std_logic;
+		reset  			: in std_logic;
+		inst   			: in std_logic_vector(31 downto 0); -- vem da instruction memory
+		saida_add_in 	: in std_logic_vector(31 downto 0); -- vem da soma do pc + 4
+		saida_add_out 	: out std_logic_vector(31 downto 0); -- repete a soma do pc + 4
+		op     			: out std_logic_vector(5 downto 0); -- opera��o
+		rd     			: out std_logic_vector(4 downto 0); -- registrador de destino
+		rt     			: out std_logic_vector(4 downto 0); -- registrador t
+		rs     			: out std_logic_vector(4 downto 0); -- registrador s
+		sa     			: out std_logic_vector(4 downto 0); -- registrador sa
+		func   			: out std_logic_vector(5 downto 0); -- fun��o
+		immd  			: out std_logic_vector(15 downto 0); -- valor imediato, instru��o do tipo I 
+		target 			: out std_logic_vector(25 downto 0) -- junp, instru��o do tipo J
+	);
+end Buf_IF_ID;
+
+architecture arq of Buf_IF_ID is
+	signal op_reg     		 : std_logic_vector(5 downto 0);
+	signal rd_reg		     : std_logic_vector(4 downto 0);
+	signal rt_reg		     : std_logic_vector(4 downto 0);
+	signal rs_reg  		   	 : std_logic_vector(4 downto 0);
+	signal sa_reg    		 : std_logic_vector(4 downto 0);
+	signal immd_reg 		 : std_logic_vector(15 downto 0);
+	signal func_reg 		 : std_logic_vector(5 downto 0);
+	signal target_reg		 : std_logic_vector(25 downto 0); 
+	signal saida_add_out_reg : std_logic_vector(31 downto 0);
+begin
+ 	--liga��o dos fios
+	op <= op_reg;
+	rd <= rd_reg;
+	rt <= rt_reg;
+	rs <= rs_reg;
+	rd <= rd_reg;
+	sa <= sa_reg;
+	func <= func_reg;
+	immd <= immd_reg;
+	target <= target_reg;
+	saida_add_out <= saida_add_out_reg;
+	
+	process(clock, reset, inst, saida_add_in)
+	begin
+		if reset = '1' then
+			op_reg		 		<= (others => '0');
+			rd_reg		 		<= (others => '0');
+			rt_reg		 		<= (others => '0');
+			rs_reg		 		<= (others => '0');
+			rd_reg 				<= (others => '0');
+			sa_reg		 		<= (others => '0');
+			func_reg		 	<= (others => '0');
+			immd_reg 			<= (others => '0');
+			target_reg		 	<= (others => '0');
+			saida_add_out_reg	<= (others => '0');
+		elsif clock'event and clock = '1' then
+			op_reg		 		<= inst(31 downto 26);
+			rs_reg		 		<= inst(25 downto 21);
+			rt_reg		 		<= inst(20 downto 16);
+			rd_reg		 		<= inst(15 downto 11);
+			sa_reg		 		<= inst(10 downto 6);
+			func_reg 			<= inst(5 downto 0);
+			immd_reg 			<= inst(15 downto 0);
+			target_reg 			<= inst(25 downto 0);
+			saida_add_out_reg  	<= saida_add_in(31 downto 0); 
+		end if;
+	end process;
+end arq;
+
+

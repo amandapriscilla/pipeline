@@ -1,0 +1,90 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+entity Buf_ID_EX is
+	port(
+		clock  			: in std_logic;
+		reset  			: in std_logic;
+		rd				: in std_logic_vector(4 downto 0); -- saida do registrador d
+		rt     			: in std_logic_vector(4 downto 0); -- saida do registrador t
+		rd1				: in std_logic_vector(31 downto 0); -- read data 1 rs
+		rd2				: in std_logic_vector(31 downto 0); -- read data 2 rt
+		singEx			: in std_logic_vector(31 downto 0); -- sing extend 32
+		saida_add_out	: in std_logic_vector(31 downto 0); -- repetir a saida_add_out
+		WB				: in std_logic_vector(1 downto 0);
+		M				: in std_logic_vector(1 downto 0);
+		EX				: in std_logic_vector(5 downto 0);
+		r_rd				: out std_logic_vector(4 downto 0); -- repetir entradas
+		r_rt     			: out std_logic_vector(4 downto 0); --                          
+		r_rd1				: out std_logic_vector(31 downto 0); -- 
+		r_rd2				: out std_logic_vector(31 downto 0); --                
+		r_singEx			: out std_logic_vector(31 downto 0); --
+		r_saida_add_out	: out std_logic_vector(31 downto 0); --                         
+		r_WB				: out std_logic_vector(1 downto 0); --
+		r_M				: out std_logic_vector(1 downto 0); -- fim repetir entradas
+		EX_mux_alu		: out std_logic; -- dividir EX
+		EX_alu_op		: out std_logic_vector(3 downto 0); -- 
+		EX_mux_regdst	: out std_logic -- fim dividir EX
+	);
+end Buf_ID_EX;
+
+architecture arq of Buf_ID_EX is
+		signal r_rd_reg				: std_logic_vector(4 downto 0); -- repetir entradas
+		signal r_rt_reg     			: std_logic_vector(4 downto 0); --                          
+		signal r_rd1_reg				: std_logic_vector(31 downto 0); -- 
+		signal r_rd2_reg				: std_logic_vector(31 downto 0); --                
+		signal r_singEx_reg			: std_logic_vector(31 downto 0); --
+		signal r_saida_add_out_reg	: std_logic_vector(31 downto 0); --                         
+		signal r_WB_reg				: std_logic_vector(1 downto 0); --
+		signal r_M_reg				: std_logic_vector(1 downto 0); -- fim repetir entradas
+		signal EX_mux_alu_reg		: std_logic; -- dividir EX
+		signal EX_alu_op_reg		: std_logic_vector(3 downto 0); -- 
+		signal EX_mux_regdst_reg	: std_logic; -- fim dividir EX
+begin
+ 	   r_rd <= r_rd_reg;				
+		r_rt <= r_rt_reg;     			       
+		r_rd1 <= r_rd1_reg;				
+		r_rd2 <= r_rd2_reg;				        
+		r_singEx <= r_singEx_reg;			
+		r_saida_add_out <= r_saida_add_out_reg;	                      
+		r_WB <= r_WB_reg;				
+		r_M <= r_M_reg;				
+		EX_mux_alu <= EX_mux_alu_reg;		
+		EX_alu_op <= EX_alu_op_reg;		
+		EX_mux_regdst <= EX_mux_regdst_reg;
+		
+		process(reset, clock, rd, rt, rd1, rd2, singEx, saida_add_out, WB, M, EX)
+		begin
+			if reset = '1' then
+				r_rd_reg				<= (others => '0');
+				r_rt_reg     			<= (others => '0');                         
+				r_rd1_reg				<= (others => '0');
+				r_rd2_reg				<= (others => '0');       
+				r_singEx_reg			<= (others => '0');
+				r_saida_add_out_reg	<= (others => '0');                       
+				r_WB_reg				<= (others => '0');
+				r_M_reg				<= (others => '0');
+				EX_mux_alu_reg		<= '0';
+				EX_alu_op_reg		<= (others => '0');
+				EX_mux_regdst_reg	<= '0';	
+			elsif  clock'event and clock = '1' then
+				r_rd_reg 				<= rd(4 downto 0); 
+				r_rt_reg 				<= rt(4 downto 0); 
+				r_rd1_reg 				<= rd1(31 downto 0); 
+				r_rd2_reg 			<= rd2(31 downto 0); 
+				r_singEx_reg 			<= singEx(31 downto 0); 
+				r_saida_add_out_reg 	<= saida_add_out(31 downto 0); 
+				r_WB_reg 				<= WB(1 downto 0);
+				r_M_reg 				<= M(1 downto 0);
+				EX_mux_alu_reg 		<= EX(0);		
+				EX_alu_op_reg		<= EX(4 downto 1);		
+				EX_mux_regdst_reg 	<= EX(5);
+			end if;
+		end process;
+	
+end arq;
+
+
+
+
