@@ -9,7 +9,7 @@ entity banco_reg is
         rd    		: in std_logic_vector(4 downto 0);
         rs    : in std_logic_vector(4 downto 0);
         rt    : in std_logic_vector(4 downto 0);
-        v_rd  : in std_logic_vector(31 downto 0);
+        v_rd, v_hi  : in std_logic_vector(31 downto 0);
         v_rs  : out std_logic_vector(31 downto 0);
         v_rt  : out std_logic_vector(31 downto 0)
     );
@@ -26,7 +26,10 @@ begin
     begin
         if clk'event and clk = '1' then
             if write_rd = '1' then
-                regs(to_integer(unsigned(rd))) <= v_rd;
+					regs(to_integer(unsigned(rd))) <= v_rd;
+					if to_integer(unsigned(rd))= 30 then
+						regs(to_integer(unsigned(rd))+1) <= v_hi;
+					end if;
             end if;
         end if;
     end process;
